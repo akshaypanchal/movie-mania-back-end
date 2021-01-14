@@ -20,16 +20,28 @@ router.post('/signup', function (req, res, next) {
         throw err;
       }
       else {
+
         var dbo = db.db("Movie-Mania-DB");
-        dbo.collection('users').insertOne(req.body);
+        dbo.collection('users').find({ $and: [{ "email": req.body.email }, { "firstName": req.body.firstName }] }).toArray(function (err, result) {
+          if (err) {
+            throw err;
+          }
+          else {
+            // res.status(200).json({ data: result }););
+            if (result.length > 0) {
+              res.status(500).send("user already exist in database!!");
+            }
+            else {
+              dbo.collection('users').insertOne(req.body);
+              res.status(201).send("success");
+            }
+
+          }
+
+        });
       }
-      res.status(201).send("success");
-
-
     });
-
 });
-
 
 router.post("/login", function (req, res, next) {
 
@@ -67,7 +79,7 @@ router.post("/login", function (req, res, next) {
               )
 
               // set it the response's cookie
-              res.json({ 'AuthToken' : token, 'maxAge' :  3600, 'firstName':result[0].firstName, 'lastName':result[0].lastName  });
+              res.json({ 'AuthToken': token, 'maxAge': 3600, 'firstName': result[0].firstName, 'lastName': result[0].lastName });
               // res.redirect('/shopping');
               // res.send("success");
 

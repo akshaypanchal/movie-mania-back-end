@@ -62,14 +62,14 @@ router.post("/login", function (req, res, next) {
                 // header 
                 {
                   algorithm: "HS256",
-                  expiresIn: 3600   //seconds
+                  expiresIn: 360   //seconds
                 }
               )
 
               // set it the response's cookie
-              res.json({ 'AuthToken' : token, 'maxAge' :  3600  });
+              res.json({ 'AuthToken' : token, 'maxAge' :  3600, 'firstName':result[0].firstName, 'lastName':result[0].lastName  });
               // res.redirect('/shopping');
-              res.send("success");
+              // res.send("success");
 
             }
 

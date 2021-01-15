@@ -79,7 +79,7 @@ router.post("/login", function (req, res, next) {
               )
 
               // set it the response's cookie
-              res.json({ 'AuthToken': token, 'maxAge': 3600, 'firstName': result[0].firstName, 'lastName': result[0].lastName });
+              res.json({ 'AuthToken': token, 'maxAge': 60, 'firstName': result[0].firstName, 'lastName': result[0].lastName });
               // res.redirect('/shopping');
               // res.send("success");
 
@@ -95,6 +95,29 @@ router.post("/login", function (req, res, next) {
           }
         });
       }
+    });
+
+});
+
+
+router.post('/booking', function (req, res, next) {
+
+  const movieName =  req.body.movieName;
+  const numberOfTickets = req.body.numberOfTickets;
+  const showType = req.body.showType;
+  const bookingDate = req.body.bookingDate;
+  const userName = req.body.user.firstName;
+
+  MongoClient.connect(url, { useUnifiedTopology: true },
+    function (err, db) {
+      if (err) {
+        throw err;
+      }
+      else {
+        var dbo = db.db("Movie-Mania-DB");
+        dbo.collection(userName).insertOne( {movieName, numberOfTickets, showType, bookingDate});
+      }
+      res.status(201).send("success");
     });
 
 });

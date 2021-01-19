@@ -122,4 +122,38 @@ router.post('/booking', function (req, res, next) {
 
 });
 
+
+router.get(`/booking`, function (req, res, next) {
+
+  // console.log(req.query);
+
+  // res.json({ test: "express" })
+
+  MongoClient.connect(url, { useUnifiedTopology: true },
+    function (err, db) {
+      
+      if (err) {
+        throw err;
+      }
+      else {
+        var dbo = db.db("Movie-Mania-DB");
+        dbo.collection(req.query.name).find().toArray(function (err, result) {
+          if (err) {
+            throw err;
+          }
+          else {
+            res.status(200).json({ data: result });
+            // res.status(200);
+            res.end();
+            db.close();
+          }
+        });
+      }
+    });
+
+
+});
+
+
+
 module.exports = router;

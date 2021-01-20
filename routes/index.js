@@ -12,7 +12,6 @@ router.get('/', function (req, res, next) {
 
 
 router.post('/signup', function (req, res, next) {
-  console.log(req.body);
 
   MongoClient.connect(url, { useUnifiedTopology: true },
     function (err, db) {
@@ -41,68 +40,70 @@ router.post('/signup', function (req, res, next) {
         });
       }
     });
+
 });
 
 router.post("/login", function (req, res, next) {
 
   let email = req.body.email;
   let password = req.body.password;
+  console.log("login called!!!", req.body);
 
-
-
-  MongoClient.connect(url, { useUnifiedTopology: true },
-    function (err, db) {
-      if (err) {
-        throw err;
-      }
-      else {
-        var dbo = db.db("Movie-Mania-DB");
-        dbo.collection('users').find({ $and: [{ "email": email }, { "password": password }] }).toArray(function (err, result) {
-          if (err) {
-            throw err;
-          }
-          else {
-            // res.status(200).json({ data: result }););
-            if (result.length > 0) {
-              console.log("function called");
-
-              const token = jwt.sign(
-                // payload
-                { user: email },
-                // sercret key
-                "dreams",
-                // header 
-                {
-                  algorithm: "HS256",
-                  expiresIn: 360   //seconds
-                }
-              )
-
-              // set it the response's cookie
-              res.json({ 'AuthToken': token, 'maxAge': 60, 'firstName': result[0].firstName, 'lastName': result[0].lastName });
-              // res.redirect('/shopping');
-              // res.send("success");
-
+  if (email && password) {
+    MongoClient.connect(url, { useUnifiedTopology: true },
+      function (err, db) {
+        if (err) {
+          throw err;
+        }
+        else {
+          var dbo = db.db("Movie-Mania-DB");
+          dbo.collection('users').find({ $and: [{ "email": email }, { "password": password }] }).toArray(function (err, result) {
+            if (err) {
+              throw err;
             }
-
             else {
-              res.send("Invalid login details");
-            }
+              // res.status(200).json({ data: result }););
+              if (result.length > 0) {
+                console.log("function called");
 
-            // res.status(200);
-            res.end();
-            db.close();
-          }
-        });
-      }
-    });
+                const token = jwt.sign(
+                  // payload
+                  { user: email },
+                  // sercret key
+                  "dreams",
+                  // header 
+                  {
+                    algorithm: "HS256",
+                    expiresIn: 360   //seconds
+                  }
+                )
+
+                // set it the response's cookie
+                res.json({ 'AuthToken': token, 'maxAge': 60, 'firstName': result[0].firstName, 'lastName': result[0].lastName });
+                // res.redirect('/shopping');
+                // res.send("success");
+
+              }
+
+              else {
+                res.send("Invalid login details");
+              }
+
+              // res.status(200);
+              res.end();
+              db.close();
+            }
+          });
+        }
+      });
+  }
 
 });
 
 
 router.post('/booking', function (req, res, next) {
 
-  const movieName =  req.body.movieName;
+  const movieName = req.body.movieName;
   const numberOfTickets = req.body.numberOfTickets;
   const showType = req.body.showType;
   const bookingDate = req.body.bookingDate;
@@ -115,7 +116,7 @@ router.post('/booking', function (req, res, next) {
       }
       else {
         var dbo = db.db("Movie-Mania-DB");
-        dbo.collection(userName).insertOne( {movieName, numberOfTickets, showType, bookingDate});
+        dbo.collection(userName).insertOne({ movieName, numberOfTickets, showType, bookingDate });
       }
       res.status(201).send("success");
     });
@@ -131,7 +132,7 @@ router.get(`/booking`, function (req, res, next) {
 
   MongoClient.connect(url, { useUnifiedTopology: true },
     function (err, db) {
-      
+
       if (err) {
         throw err;
       }
